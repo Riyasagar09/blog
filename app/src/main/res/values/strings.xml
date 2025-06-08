@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">My Blog</string>
+    <string name="write_blog">✍️ Write a Blog</string>
+    <string name="read_blogs">📖 Read Blogs</string>
+    <string name="welcome_message">Welcome!</string>
+    <string name="design_by">Design by\n RN</string>
+    <string name="logo_desc">App Logo</string>
+
+</resources>
