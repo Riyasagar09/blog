@@ -12,6 +12,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var btnWrite: Button
     private lateinit var btnRead: Button
+    private lateinit var btnTrending: Button
     private lateinit var tvWelcome: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,6 +21,7 @@ class MainActivity : AppCompatActivity() {
 
         btnWrite = findViewById(R.id.btnWrite)
         btnRead = findViewById(R.id.btnRead)
+        btnTrending = findViewById(R.id.btnTrending)
         tvWelcome = findViewById(R.id.tvWelcome)
 
         val username = intent.getStringExtra("username") ?: "Blogger"
@@ -41,6 +43,11 @@ class MainActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "No blogs found", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        btnTrending.setOnClickListener {
+            val intent = Intent(this, TrendingNewsActivity::class.java)
+            startActivity(intent)
         }
     }
 }

@@ -125,4 +125,32 @@ class BlogDbHelper(context: Context) : SQLiteOpenHelper(context, "blogs.db", nul
         cursor.close()
         return blog
     }
+
+    fun getAllBlogs(): List<Blog> {
+        val blogs = mutableListOf<Blog>()
+        val cursor = readableDatabase.query(
+            TABLE_NAME,
+            null,
+            null,
+            null,
+            null,
+            null,
+            "$COLUMN_ID DESC" // Show newest blogs first
+        )
+
+        while (cursor.moveToNext()) {
+            val blog = Blog(
+                cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID)),
+                cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TITLE)),
+                cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CONTENT)),
+                cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_AUTHOR)),
+                cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_IS_DRAFT)) == 1,
+                cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MEDIA_URI)),
+                cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MEDIA_TYPE))
+            )
+            blogs.add(blog)
+        }
+        cursor.close()
+        return blogs
+    }
 }

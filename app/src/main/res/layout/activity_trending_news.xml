@@ -8,7 +8,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="All Blogs"
+        android:text="Trending News"
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="#6E0550"
@@ -17,9 +17,9 @@
         android:gravity="center"/>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewBlogs"
+        android:id="@+id/recyclerViewNews"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="8dp"/>
 
-</LinearLayout>
+</LinearLayout> 

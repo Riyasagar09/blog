@@ -61,6 +61,21 @@
             android:fontFamily="serif"
             android:textColor="#6E0550"
             android:background="@drawable/button_border_blue" />
+
+        <Button
+            android:id="@+id/btnTrending"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="Trending News"
+            android:textStyle="bold"
+            android:layout_below="@id/btnRead"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:textSize="18sp"
+            android:fontFamily="serif"
+            android:textColor="#6E0550"
+            android:background="@drawable/button_border_red" />
+
         <TextView
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
