@@ -14,6 +14,7 @@
             android:id="@+id/etTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/light_white"
             android:hint="Blog Title"
             android:textSize="20sp"
             android:fontFamily="serif"
@@ -26,6 +27,7 @@
             android:layout_height="200dp"
             android:gravity="top"
             android:fontFamily="serif"
+            android:background="@color/light_white"
             android:hint="Write your blog content here"
             android:padding="8dp"
             android:inputType="textMultiLine"
@@ -44,17 +46,17 @@
 
         <Button
             android:id="@+id/btnPickMedia"
-            android:layout_width="wrap_content"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:text="Pick Image/Video"
             android:backgroundTint="#D57AA4"
-            android:layout_marginTop="12dp" />
+            android:layout_marginTop="12dp"
+            android:background="@drawable/rounded_button" />
 
         <ImageView
             android:id="@+id/ivPreview"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-
             android:scaleType="centerCrop"
             android:visibility="gone"
             android:layout_marginTop="12dp" />
@@ -63,7 +65,6 @@
             android:id="@+id/vvPreview"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-
             android:visibility="gone"
             android:layout_marginTop="12dp" />
 
@@ -72,10 +73,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Save Draft"
-            android:textColor="@color/blue"
             android:fontFamily="serif"
             android:backgroundTint="#D57AA4"
-            android:layout_marginTop="24dp" />
+            android:layout_marginTop="24dp"
+            android:background="@drawable/rounded_button" />
 
         <Button
             android:id="@+id/btnPublish"
@@ -84,6 +85,7 @@
             android:text="Publish"
             android:fontFamily="serif"
             android:backgroundTint="#D57AA4"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"
+            android:background="@drawable/rounded_button" />
     </LinearLayout>
 </ScrollView>
