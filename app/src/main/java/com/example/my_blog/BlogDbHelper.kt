@@ -153,4 +153,9 @@ class BlogDbHelper(context: Context) : SQLiteOpenHelper(context, "blogs.db", nul
         cursor.close()
         return blogs
     }
+
+    fun deleteBlog(id: Int): Int {
+        val db = writableDatabase
+        return db.delete(TABLE_NAME, "$COLUMN_ID = ?", arrayOf(id.toString()))
+    }
 }

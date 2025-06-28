@@ -22,16 +22,31 @@ class ReadBlogActivity : AppCompatActivity() {
 
         recyclerView = findViewById(R.id.recyclerViewBlogs)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        
+
         dbHelper = BlogDbHelper(this)
-        
-        adapter = BlogAdapter { blog ->
-            // Open the full blog view
-            val intent = Intent(this, BlogDetailActivity::class.java)
-            intent.putExtra("blog_id", blog.id)
-            startActivity(intent)
-        }
-        
+
+        adapter = BlogAdapter(
+            onItemClick = { blog ->
+                // Open the full blog view
+                val intent = Intent(this, BlogDetailActivity::class.java)
+                intent.putExtra("blog_id", blog.id)
+                startActivity(intent)
+            },
+            onEditClick = { blog ->
+                val intent = Intent(this, WriteBlogActivity::class.java)
+                intent.putExtra("blog_id", blog.id)
+                startActivity(intent)
+            },
+            onDeleteClick = { blog ->
+                val deleted = dbHelper.deleteBlog(blog.id)
+                if (deleted > 0) {
+                    Toast.makeText(this, "Blog deleted", Toast.LENGTH_SHORT).show()
+                    loadBlogs()
+                } else {
+                    Toast.makeText(this, "Failed to delete blog", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
         recyclerView.adapter = adapter
         loadBlogs()
     }
@@ -50,8 +65,11 @@ class ReadBlogActivity : AppCompatActivity() {
     }
 }
 
-class BlogAdapter(private val onItemClick: (Blog) -> Unit) : 
-    androidx.recyclerview.widget.ListAdapter<Blog, BlogAdapter.BlogViewHolder>(BlogDiffCallback()) {
+class BlogAdapter(
+    private val onItemClick: (Blog) -> Unit,
+    private val onEditClick: (Blog) -> Unit,
+    private val onDeleteClick: (Blog) -> Unit
+) : androidx.recyclerview.widget.ListAdapter<Blog, BlogAdapter.BlogViewHolder>(BlogDiffCallback()) {
 
     override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): BlogViewHolder {
         val view = android.view.LayoutInflater.from(parent.context)
@@ -68,15 +86,16 @@ class BlogAdapter(private val onItemClick: (Blog) -> Unit) :
         private val titleView: TextView = itemView.findViewById(R.id.tvBlogTitle)
         private val previewView: TextView = itemView.findViewById(R.id.tvBlogPreview)
         private val dateView: TextView = itemView.findViewById(R.id.tvBlogDate)
+        private val btnEdit: android.widget.Button = itemView.findViewById(R.id.btnEdit)
+        private val btnDelete: android.widget.Button = itemView.findViewById(R.id.btnDelete)
 
         fun bind(blog: Blog) {
             titleView.text = blog.title
             previewView.text = blog.content.take(150) + if (blog.content.length > 150) "..." else ""
             dateView.text = "Posted by User ${blog.authorId}"
-            
-            itemView.setOnClickListener {
-                onItemClick(blog)
-            }
+            itemView.setOnClickListener { onItemClick(blog) }
+            btnEdit.setOnClickListener { onEditClick(blog) }
+            btnDelete.setOnClickListener { onDeleteClick(blog) }
         }
     }
 }

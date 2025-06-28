@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
-    android:background="#F1CED9"
+    android:background="#fae9e0"
     tools:context="WelcomeActivity">
 
 
