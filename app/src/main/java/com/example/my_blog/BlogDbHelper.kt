@@ -12,10 +12,12 @@ data class Blog(
     val authorId: Int,
     val isDraft: Boolean,
     val mediaUri: String?,
-    val mediaType: String?  // "image" or "video"
+    val mediaType: String?,  // "image" or "video"
+    val imageBlob: ByteArray? = null,
+    val videoBlob: ByteArray? = null
 )
 
-class BlogDbHelper(context: Context) : SQLiteOpenHelper(context, "blogs.db", null, 2) {
+class BlogDbHelper(context: Context) : SQLiteOpenHelper(context, "blogs.db", null, 3) {
 
     companion object {
         const val TABLE_NAME = "blogs"
@@ -26,6 +28,8 @@ class BlogDbHelper(context: Context) : SQLiteOpenHelper(context, "blogs.db", nul
         const val COLUMN_IS_DRAFT = "isDraft"
         const val COLUMN_MEDIA_URI = "mediaUri"
         const val COLUMN_MEDIA_TYPE = "mediaType"
+        const val COLUMN_IMAGE_BLOB = "imageBlob"
+        const val COLUMN_VIDEO_BLOB = "videoBlob"
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -37,7 +41,9 @@ class BlogDbHelper(context: Context) : SQLiteOpenHelper(context, "blogs.db", nul
                 $COLUMN_AUTHOR INTEGER NOT NULL,
                 $COLUMN_IS_DRAFT INTEGER NOT NULL,
                 $COLUMN_MEDIA_URI TEXT,
-                $COLUMN_MEDIA_TYPE TEXT
+                $COLUMN_MEDIA_TYPE TEXT,
+                $COLUMN_IMAGE_BLOB BLOB,
+                $COLUMN_VIDEO_BLOB BLOB
             )
         """.trimIndent()
         db.execSQL(create)
@@ -48,6 +54,10 @@ class BlogDbHelper(context: Context) : SQLiteOpenHelper(context, "blogs.db", nul
             db.execSQL("ALTER TABLE $TABLE_NAME ADD COLUMN $COLUMN_MEDIA_URI TEXT")
             db.execSQL("ALTER TABLE $TABLE_NAME ADD COLUMN $COLUMN_MEDIA_TYPE TEXT")
         }
+        if (oldVersion < 3) {
+            db.execSQL("ALTER TABLE $TABLE_NAME ADD COLUMN $COLUMN_IMAGE_BLOB BLOB")
+            db.execSQL("ALTER TABLE $TABLE_NAME ADD COLUMN $COLUMN_VIDEO_BLOB BLOB")
+        }
     }
 
     fun insertBlog(
@@ -56,7 +66,9 @@ class BlogDbHelper(context: Context) : SQLiteOpenHelper(context, "blogs.db", nul
         authorId: Int,
         isDraft: Boolean,
         mediaUri: String?,
-        mediaType: String?
+        mediaType: String?,
+        imageBlob: ByteArray? = null,
+        videoBlob: ByteArray? = null
     ): Long {
         val db = writableDatabase
         val values = ContentValues().apply {
@@ -66,9 +78,12 @@ class BlogDbHelper(context: Context) : SQLiteOpenHelper(context, "blogs.db", nul
             put(COLUMN_IS_DRAFT, if (isDraft) 1 else 0)
             put(COLUMN_MEDIA_URI, mediaUri)
             put(COLUMN_MEDIA_TYPE, mediaType)
+            put(COLUMN_IMAGE_BLOB, imageBlob)
+            put(COLUMN_VIDEO_BLOB, videoBlob)
         }
         return db.insert(TABLE_NAME, null, values)
     }
+
     fun getLatestBlogId(): Int? {
         val cursor = readableDatabase.rawQuery("SELECT $COLUMN_ID FROM $TABLE_NAME ORDER BY $COLUMN_ID DESC LIMIT 1", null)
         var latestId: Int? = null
@@ -79,15 +94,15 @@ class BlogDbHelper(context: Context) : SQLiteOpenHelper(context, "blogs.db", nul
         return latestId
     }
 
-
-
     fun updateBlog(
         id: Int,
         title: String,
         content: String,
         isDraft: Boolean,
         mediaUri: String?,
-        mediaType: String?
+        mediaType: String?,
+        imageBlob: ByteArray? = null,
+        videoBlob: ByteArray? = null
     ): Int {
         val db = writableDatabase
         val values = ContentValues().apply {
@@ -96,6 +111,8 @@ class BlogDbHelper(context: Context) : SQLiteOpenHelper(context, "blogs.db", nul
             put(COLUMN_IS_DRAFT, if (isDraft) 1 else 0)
             put(COLUMN_MEDIA_URI, mediaUri)
             put(COLUMN_MEDIA_TYPE, mediaType)
+            put(COLUMN_IMAGE_BLOB, imageBlob)
+            put(COLUMN_VIDEO_BLOB, videoBlob)
         }
         return db.update(TABLE_NAME, values, "$COLUMN_ID = ?", arrayOf(id.toString()))
     }
@@ -119,7 +136,9 @@ class BlogDbHelper(context: Context) : SQLiteOpenHelper(context, "blogs.db", nul
                 cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_AUTHOR)),
                 cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_IS_DRAFT)) == 1,
                 cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MEDIA_URI)),
-                cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MEDIA_TYPE))
+                cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MEDIA_TYPE)),
+                cursor.getBlob(cursor.getColumnIndexOrThrow(COLUMN_IMAGE_BLOB)),
+                cursor.getBlob(cursor.getColumnIndexOrThrow(COLUMN_VIDEO_BLOB))
             )
         }
         cursor.close()
@@ -146,7 +165,9 @@ class BlogDbHelper(context: Context) : SQLiteOpenHelper(context, "blogs.db", nul
                 cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_AUTHOR)),
                 cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_IS_DRAFT)) == 1,
                 cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MEDIA_URI)),
-                cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MEDIA_TYPE))
+                cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_MEDIA_TYPE)),
+                cursor.getBlob(cursor.getColumnIndexOrThrow(COLUMN_IMAGE_BLOB)),
+                cursor.getBlob(cursor.getColumnIndexOrThrow(COLUMN_VIDEO_BLOB))
             )
             blogs.add(blog)
         }

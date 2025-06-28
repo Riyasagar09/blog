@@ -3,12 +3,15 @@ package com.example.my_blog
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
 
 class WriteBlogActivity : AppCompatActivity() {
 
@@ -26,6 +29,8 @@ class WriteBlogActivity : AppCompatActivity() {
     private var blogId: Int = -1
     private var mediaUri: String? = null
     private var mediaType: String? = null  // "image" or "video"
+    private var imageBlob: ByteArray? = null
+    private var videoBlob: ByteArray? = null
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -67,11 +72,32 @@ class WriteBlogActivity : AppCompatActivity() {
                     else -> null
                 }
 
+                imageBlob = null
+                videoBlob = null
+
                 if (mediaType == "image") {
+                    // Convert image to byte array if small enough
+                    val inputStream: InputStream? = contentResolver.openInputStream(uri)
+                    val byteArray = inputStream?.readBytes()
+                    inputStream?.close()
+                    if (byteArray != null && byteArray.size <= 1024 * 1024) { // 1MB
+                        imageBlob = byteArray
+                    } else if (byteArray != null) {
+                        Toast.makeText(this, "Image too large, storing as URI only", Toast.LENGTH_SHORT).show()
+                    }
                     ivPreview.setImageURI(uri)
                     ivPreview.visibility = ImageView.VISIBLE
                     vvPreview.visibility = VideoView.GONE
                 } else if (mediaType == "video") {
+                    // Convert video to byte array if small enough
+                    val inputStream: InputStream? = contentResolver.openInputStream(uri)
+                    val byteArray = inputStream?.readBytes()
+                    inputStream?.close()
+                    if (byteArray != null && byteArray.size <= 2 * 1024 * 1024) { // 2MB
+                        videoBlob = byteArray
+                    } else if (byteArray != null) {
+                        Toast.makeText(this, "Video too large, storing as URI only", Toast.LENGTH_SHORT).show()
+                    }
                     vvPreview.setVideoURI(uri)
                     vvPreview.start()
                     vvPreview.visibility = VideoView.VISIBLE
@@ -112,7 +138,7 @@ class WriteBlogActivity : AppCompatActivity() {
         }
 
         if (blogId == -1) {
-            val newId = dbHelper.insertBlog(title, content, authorId, isDraft, mediaUri, mediaType)
+            val newId = dbHelper.insertBlog(title, content, authorId, isDraft, mediaUri, mediaType, imageBlob, videoBlob)
             if (newId != -1L) {
                 Toast.makeText(this, "Blog saved", Toast.LENGTH_SHORT).show()
                 if (!isDraft) {
@@ -125,7 +151,7 @@ class WriteBlogActivity : AppCompatActivity() {
                 Toast.makeText(this, "Failed to save blog", Toast.LENGTH_SHORT).show()
             }
         } else {
-            val updated = dbHelper.updateBlog(blogId, title, content, isDraft, mediaUri, mediaType) > 0
+            val updated = dbHelper.updateBlog(blogId, title, content, isDraft, mediaUri, mediaType, imageBlob, videoBlob) > 0
             if (updated) {
                 Toast.makeText(this, "Blog updated", Toast.LENGTH_SHORT).show()
                 if (!isDraft) {
@@ -148,6 +174,8 @@ class WriteBlogActivity : AppCompatActivity() {
             cbDraft.isChecked = blog.isDraft
             mediaUri = blog.mediaUri
             mediaType = blog.mediaType
+            imageBlob = blog.imageBlob
+            videoBlob = blog.videoBlob
 
             if (!mediaUri.isNullOrEmpty() && !mediaType.isNullOrEmpty()) {
                 val uri = Uri.parse(mediaUri)
