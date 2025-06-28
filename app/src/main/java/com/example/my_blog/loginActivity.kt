@@ -46,6 +46,7 @@ class loginActivity : AppCompatActivity() {
 
                 if (email == savedEmail && password == savedPassword) {
                     Toast.makeText(this, "✅ Welcome back $savedName!", Toast.LENGTH_SHORT).show()
+                    prefs.edit().putBoolean("is_logged_in", true).apply()
                     val intent = Intent(this, MainActivity::class.java)
                     intent.putExtra("username", savedName)
                     startActivity(intent)
@@ -71,6 +72,7 @@ class loginActivity : AppCompatActivity() {
                     putString("name", name)
                     putString("email", email)
                     putString("password", password)
+                    putBoolean("is_logged_in", true)
                     apply()
                 }
 
